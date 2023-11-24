@@ -15,6 +15,25 @@ with open('stress_model.pickle', 'rb') as f:
     stress_model = pickle.load(f)
 
 
+@app.route("/qualificar")
+def qualificar_sono_estresse():
+    idade = int(request.args.get('idade'))
+    duracao_sono = int(request.args.get('duracao_sono'))
+    tempo_atividade_fisica = int(request.args.get('tempo_atividade_fisica'))
+
+    entrada_sleep_quality = np.array(
+        [[idade, duracao_sono, tempo_atividade_fisica]])
+
+    qualidade_sono = sleep_quality_model.predict(entrada_sleep_quality)
+
+    entrada_stress_model = np.array(
+        [[idade, duracao_sono, qualidade_sono.tolist()[0], tempo_atividade_fisica]])
+
+    nivel_estresse = stress_model.predict(entrada_stress_model)
+
+    return jsonify({'qualidade_sono': qualidade_sono.tolist()[0], 'nivel_estresse': nivel_estresse.tolist()[0]})
+
+
 @app.route("/cadastro", methods=["POST"])
 def insert_cliente() -> jsonify:
     try:
@@ -94,25 +113,6 @@ def delete_sono_by_id(idSono):
     except Exception as e:
         print("Erro ao inserir sono do cliente: ", e)
         return jsonify({"message": "An error occurred."}), 500
-
-
-@app.route("/qualificar")
-def qualificar_sono_estresse():
-    idade = int(request.args.get('idade'))
-    duracao_sono = int(request.args.get('duracao_sono'))
-    tempo_atividade_fisica = int(request.args.get('tempo_atividade_fisica'))
-
-    entrada_sleep_quality = np.array(
-        [[idade, duracao_sono, tempo_atividade_fisica]])
-
-    qualidade_sono = sleep_quality_model.predict(entrada_sleep_quality)
-
-    entrada_stress_model = np.array(
-        [[idade, duracao_sono, qualidade_sono.tolist()[0], tempo_atividade_fisica]])
-
-    nivel_estresse = stress_model.predict(entrada_stress_model)
-
-    return jsonify({'qualidade_sono': qualidade_sono.tolist()[0], 'nivel_estresse': nivel_estresse.tolist()[0]})
 
 
 if __name__ == "__main__":
