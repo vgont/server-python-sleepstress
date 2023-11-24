@@ -8,6 +8,8 @@ import numpy as np
 app = Flask(__name__)
 CORS(app)
 
+
+# <|=== IA MODELS ===|>
 with open('sleep_quality_model.pickle', 'rb') as f:
     sleep_quality_model = pickle.load(f)
 
@@ -32,6 +34,7 @@ def qualificar_sono_estresse():
     nivel_estresse = stress_model.predict(entrada_stress_model)
 
     return jsonify({'qualidade_sono': qualidade_sono.tolist()[0], 'nivel_estresse': nivel_estresse.tolist()[0]})
+# =========================================
 
 
 @app.route("/cadastro", methods=["POST"])
